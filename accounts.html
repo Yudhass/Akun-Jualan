@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Akun — Akun Manager</title>
+
+  <!-- ===== SEO ===== -->
+  <meta name="description"
+    content="Kelola data akun digital Netflix, Spotify, CapCut, Disney+, YouTube Premium, dan lainnya dengan mudah." />
+  <meta name="keywords"
+    content="akun digital, netflix, spotify, capcut, disney, youtube premium, manajemen akun, panel admin" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="author" content="Akun Manager" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="application-name" content="Akun Manager" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Data Akun — Akun Manager" />
+  <meta property="og:description" content="Kelola semua akun digital Anda di satu panel yang mudah digunakan." />
+  <meta property="og:locale" content="id_ID" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Data Akun — Akun Manager" />
+  <meta name="twitter:description" content="Kelola akun Netflix, Spotify, CapCut, dan lainnya di satu tempat." />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Akun Manager",
+    "description": "Aplikasi manajemen akun digital berbasis Google Apps Script",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web Browser",
+    "inLanguage": "id"
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ---- Accounts-specific styles ---- */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-box input {
+      padding-left: 38px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .select-filter {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      font-family: var(--font);
+      background: var(--bg-card);
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--transition);
+      min-width: 160px;
+    }
+
+    .select-filter:focus {
+      border-color: var(--primary);
+    }
+
+    /* Table */
+    .table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+
+    thead th.sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: color var(--transition);
+    }
+
+    thead th.sortable:hover {
+      color: var(--primary);
+    }
+
+    tbody tr {
+      transition: background var(--transition);
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .col-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px 6px;
+      display: inline-flex;
+      align-items: center;
+      transition: all var(--transition);
+    }
+
+    .copy-btn:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .pass-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pass-dots {
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+    }
+
+    #empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+    }
+
+    #empty-state svg {
+      color: var(--border);
+      margin-bottom: 12px;
+    }
+
+    #empty-state p {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    #empty-state small {
+      font-size: 13px;
+    }
+
+    #table-footer {
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: #f8fafc;
+    }
+
+    /* Responsive table */
+    @media (max-width: 768px) {
+      table {
+        white-space: normal;
+      }
+
+      table,
+      thead,
+      tbody,
+      tr,
+      td,
+      th {
+        display: block;
+      }
+
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tbody tr {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        margin-bottom: 10px;
+        background: var(--bg-card);
+      }
+
+      tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        min-width: 90px;
+      }
+
+      tbody tr:last-child td:last-child {
+        border-bottom: none;
+      }
+
+      .table-wrap {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Loading -->
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner"></div>
+  </div>
+  <!-- Toast -->
+  <div id="toast-container"></div>
+  <!-- Sidebar Overlay (mobile) -->
+  <div id="sidebar-overlay"></div>
+
+  <!-- ========== APP SHELL ========== -->
+  <div id="app">
+
+    <!-- ---- Sidebar ---- -->
+    <aside id="sidebar">
+      <a class="sidebar-brand" href="dashboard.html">
+        <div class="sidebar-brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+        <div>
+          <h2>Akun Manager</h2>
+          <span>Panel Admin</span>
+        </div>
+      </a>
+
+      <nav class="sidebar-nav">
+        <span class="nav-label">Menu</span>
+        <a class="nav-item" href="dashboard.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+          </svg>
+          Dashboard
+        </a>
+        <a class="nav-item active" href="accounts.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Data Akun
+          <span class="badge" id="badge-count">0</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="sidebar-user-info">
+          <div class="sidebar-avatar" id="sidebar-avatar">A</div>
+          <div>
+            <div class="sidebar-name" id="sidebar-name">Admin</div>
+            <div class="sidebar-email" id="sidebar-email"></div>
+          </div>
+        </div>
+        <button class="nav-item" onclick="openChangePasswordModal()" style="padding:8px 12px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          Ganti Password
+        </button>
+        <button class="nav-item" onclick="handleLogout()" style="color:#fca5a5; padding:8px 12px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Keluar
+        </button>
+      </div>
+    </aside>
+
+    <!-- ---- Main ---- -->
+    <div id="main">
+
+      <!-- Header -->
+      <header id="header">
+        <button id="menu-btn" onclick="toggleSidebar()" aria-label="Buka menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <h1 id="page-title">Data Akun</h1>
+        <div class="header-actions">
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Tambah Akun
+          </button>
+        </div>
+      </header>
+
+      <!-- Alert Banner -->
+      <div id="alert-banner" class="alert-banner hidden" role="alert">
+        <span class="alert-banner-icon" id="alert-icon"></span>
+        <div class="alert-banner-body">
+          <div class="alert-banner-title" id="alert-title"></div>
+          <div class="alert-banner-msg" id="alert-msg"></div>
+        </div>
+        <button class="alert-banner-close" onclick="hideAlert()" aria-label="Tutup">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <main id="content">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="search-box">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="text" id="search-input" class="form-control" placeholder="Cari akun…"
+              oninput="renderTable()" />
+          </div>
+          <select id="platform-filter" class="select-filter" onchange="renderTable()">
+            <option value="">Semua Platform</option>
+          </select>
+          <!-- Filter Tanggal -->
+          <div class="date-range">
+            <input type="date" id="date-from" class="date-input" onchange="renderTable()" title="Dari tanggal"
+              aria-label="Dari tanggal" />
+            <span class="date-sep">–</span>
+            <input type="date" id="date-to" class="date-input" onchange="renderTable()" title="Sampai tanggal"
+              aria-label="Sampai tanggal" />
+            <button class="btn btn-ghost btn-sm" onclick="clearDateFilter()" id="clear-date-btn"
+              title="Reset filter tanggal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 .49-3.1" />
+              </svg>
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th class="sortable" onclick="sortBy('Platform')">Platform</th>
+                  <th class="sortable" onclick="sortBy('Username')">Email / Username</th>
+                  <th>Password</th>
+                  <th class="sortable" onclick="sortBy('Date')">Tanggal</th>
+                  <th>Jam</th>
+                  <th>Catatan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+
+          <div id="empty-state" class="hidden">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            <p>Tidak ada akun ditemukan</p>
+            <small>Tambah akun baru atau ubah filter pencarian</small>
+          </div>
+          <div id="table-footer"></div>
+        </div>
+
+      </main>
+    </div><!-- /main -->
+  </div><!-- /app -->
+
+  <!-- ========== MODAL: Add / Edit Account ========== -->
+  <div id="account-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Tambah Akun Baru</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <form id="account-form" onsubmit="handleSaveAccount(event)" novalidate>
+        <input type="hidden" id="form-account-id" />
+        <div class="modal-body">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 16px;">
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label" for="form-platform">Platform <span class="req">*</span></label>
+              <input type="text" id="form-platform" class="form-control" placeholder="Netflix, Spotify, CapCut…"
+                list="platform-list" required />
+              <datalist id="platform-list">
+                <option value="Netflix">
+                <option value="Spotify">
+                <option value="CapCut">
+                <option value="Disney+">
+                <option value="YouTube Premium">
+                <option value="Apple TV+">
+                <option value="Canva Pro">
+                <option value="Adobe CC">
+                <option value="Amazon Prime">
+              </datalist>
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label" for="form-username">Email / Username <span class="req">*</span></label>
+              <input type="text" id="form-username" class="form-control" placeholder="email@contoh.com" required />
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label" for="form-password">Password <span class="req">*</span></label>
+              <div class="input-group">
+                <input type="password" id="form-password" class="form-control" placeholder="Password akun" required />
+                <button type="button" class="input-toggle" onclick="togglePass('form-password')" title="Tampilkan">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-date">Tanggal <span class="req">*</span></label>
+              <input type="date" id="form-date" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-time">Jam</label>
+              <input type="time" id="form-time" class="form-control" />
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label class="form-label" for="form-notes">Catatan</label>
+              <textarea id="form-notes" class="form-control" placeholder="Info tambahan (opsional)…"
+                rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">Batal</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <polyline points="17 21 17 13 7 13 7 21" />
+              <polyline points="7 3 7 8 15 8" />
+            </svg>
+            Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== MODAL: Delete Confirm ========== -->
+  <div id="delete-modal" class="modal-overlay hidden">
+    <div class="modal" style="max-width:400px;">
+      <div class="modal-header">
+        <h3>Hapus Akun</h3>
+        <button class="modal-close" onclick="closeDeleteModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;gap:14px;align-items:flex-start;">
+          <div
+            style="width:44px;height:44px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <div>
+            <p style="font-weight:600;margin-bottom:6px;">Yakin ingin menghapus?</p>
+            <p id="delete-confirm-msg" style="font-size:13.5px;color:var(--text-muted);"></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeDeleteModal()">Batal</button>
+        <button class="btn btn-danger" id="confirm-delete-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+          </svg>
+          Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="utils.js"></script>
+  <script>
+    /* ============================================================
+       accounts.js — Logika halaman Manajemen Akun
+    ============================================================ */
+
+    const state = {
+      token: null,
+      user: null,
+      accounts: [],
+      sortCol: "Date",
+      sortAsc: false,
+    };
+
+    /* ---- Init ---- */
+    async function init() {
+      const token = getToken();
+      if (!token) { window.location.href = LOGIN_PAGE; return; }
+
+      showLoading();
+      try {
+        const res = await api("validateSession", undefined, token);
+        if (res.status !== "success") {
+          clearSession();
+          window.location.href = LOGIN_PAGE;
+          return;
+        }
+        state.token = token;
+        state.user = Object.assign({}, res.data, getUser());
+        renderSidebarUser(state.user);
+        await loadAccounts();
+        renderTable();
+      } catch (e) {
+        toast("error", "Gagal terhubung", e.message);
+        clearSession();
+        window.location.href = LOGIN_PAGE;
+      } finally {
+        hideLoading();
+      }
+    }
+
+    /* ---- Load Accounts ---- */
+    async function loadAccounts() {
+      try {
+        const res = await api("getAccounts", undefined, state.token);
+        if (res.status === "success") {
+          state.accounts = res.data || [];
+          document.getElementById("badge-count").textContent = state.accounts.length;
+          populatePlatformFilter();
+          if (state.accounts.length === 0) {
+            showAlert("info", "Belum Ada Akun", "Klik \"Tambah Akun\" untuk menambahkan akun digital pertama.");
+          } else {
+            hideAlert();
+          }
+        } else {
+          showAlert("error", "Gagal Memuat Data", res.message || "Coba refresh halaman.");
+        }
+      } catch (e) {
+        toast("error", "Gagal memuat data", e.message);
+        showAlert("error", "Gagal Terhubung ke Server", e.message + " — Periksa koneksi atau coba lagi.");
+      }
+    }
+
+    function populatePlatformFilter() {
+      const platforms = [...new Set(state.accounts.map(a => String(a.Platform || "")).filter(Boolean))].sort();
+      const sel = document.getElementById("platform-filter");
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Semua Platform</option>';
+      platforms.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p; opt.textContent = p;
+        sel.appendChild(opt);
+      });
+      sel.value = cur;
+    }
+
+    /* ---- Table ---- */
+    function sortBy(col) {
+      if (state.sortCol === col) state.sortAsc = !state.sortAsc;
+      else { state.sortCol = col; state.sortAsc = true; }
+      renderTable();
+    }
+
+    function clearDateFilter() {
+      document.getElementById("date-from").value = "";
+      document.getElementById("date-to").value = "";
+      renderTable();
+    }
+
+    function renderTable() {
+      const search = (document.getElementById("search-input")?.value || "").toLowerCase();
+      const pfilt = document.getElementById("platform-filter")?.value || "";
+      const dateFrom = document.getElementById("date-from")?.value || "";
+      const dateTo = document.getElementById("date-to")?.value || "";
+
+      let data = [...state.accounts];
+      if (pfilt) data = data.filter(a => a.Platform === pfilt);
+      if (dateFrom) data = data.filter(a => String(a.Date || "").slice(0, 10) >= dateFrom);
+      if (dateTo) data = data.filter(a => String(a.Date || "").slice(0, 10) <= dateTo);
+      if (search) data = data.filter(a =>
+        Object.values(a).some(v => String(v).toLowerCase().includes(search))
+      );
+
+      data.sort((a, b) => {
+        const av = String(a[state.sortCol] || "").toLowerCase();
+        const bv = String(b[state.sortCol] || "").toLowerCase();
+        return state.sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+
+      const tbody = document.getElementById("table-body");
+      const empty = document.getElementById("empty-state");
+      const footer = document.getElementById("table-footer");
+
+      if (data.length === 0) {
+        tbody.innerHTML = "";
+        empty.classList.remove("hidden");
+        footer.textContent = "Tidak ada data.";
+        return;
+      }
+
+      empty.classList.add("hidden");
+      const activeFilters = [];
+      if (document.getElementById("platform-filter")?.value) activeFilters.push("platform");
+      if (document.getElementById("date-from")?.value || document.getElementById("date-to")?.value) activeFilters.push("tanggal");
+      if (document.getElementById("search-input")?.value) activeFilters.push("pencarian");
+      const filterInfo = activeFilters.length ? ` (filter: ${activeFilters.join(", ")})` : "";
+      footer.textContent = `Menampilkan ${data.length} dari ${state.accounts.length} akun${filterInfo}`;
+
+      tbody.innerHTML = data.map((a, i) => `
+      <tr>
+        <td data-label="#">${i + 1}</td>
+        <td data-label="Platform">
+          <span class="badge-platform ${platformClass(a.Platform)}">${escHtml(a.Platform || "-")}</span>
+        </td>
+        <td data-label="Email/Username">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="truncate" style="max-width:200px;" title="${escHtml(a.Username || "")}">${escHtml(a.Username || "-")}</span>
+            <button class="copy-btn" onclick="copyText('${escAttr(a.Username || '')}','Username')" title="Salin">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+          </div>
+        </td>
+        <td data-label="Password">
+          <div class="pass-cell">
+            <span class="pass-dots" id="pd-${i}">••••••••</span>
+            <span class="hidden" id="pt-${i}" style="font-family:monospace;font-size:13px;">${escHtml(a.Password || "")}</span>
+            <button class="copy-btn" onclick="togglePassCell(${i})" title="Tampilkan">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+            <button class="copy-btn" onclick="copyText('${escAttr(a.Password || '')}','Password')" title="Salin">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+          </div>
+        </td>
+        <td data-label="Tanggal">${escHtml(formatDate(a.Date))}</td>
+        <td data-label="Jam">${escHtml(formatTime(a.Time))}</td>
+        <td data-label="Catatan">
+          <span class="truncate" style="max-width:160px;" title="${escHtml(a.Notes || "")}">${escHtml(a.Notes || "-")}</span>
+        </td>
+        <td data-label="Aksi">
+          <div class="col-actions">
+            <button class="btn btn-ghost btn-sm btn-icon" onclick='openEditModal(${JSON.stringify(a)})' title="Edit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="btn btn-danger btn-sm btn-icon"
+                    onclick="openDeleteModal('${escAttr(a.AccountID)}','${escAttr(a.Platform)} — ${escAttr(a.Username)}')"
+                    title="Hapus">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/><path d="M14 11v6"/>
+              </svg>
+            </button>
+          </div>
+        </td>
+      </tr>`).join("");
+    }
+
+    /* ---- Modal: Add / Edit ---- */
+    function openAddModal() {
+      document.getElementById("modal-title").textContent = "Tambah Akun Baru";
+      document.getElementById("account-form").reset();
+      document.getElementById("form-account-id").value = "";
+      const now = new Date();
+      document.getElementById("form-date").value = now.toISOString().slice(0, 10);
+      document.getElementById("form-time").value =
+        String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("account-modal").classList.remove("hidden");
+      document.getElementById("form-platform").focus();
+    }
+
+    function openEditModal(account) {
+      document.getElementById("modal-title").textContent = "Edit Akun";
+      document.getElementById("form-account-id").value = account.AccountID || "";
+      document.getElementById("form-platform").value = account.Platform || "";
+      document.getElementById("form-username").value = account.Username || "";
+      document.getElementById("form-password").value = account.Password || "";
+      document.getElementById("form-date").value = String(account.Date || "").slice(0, 10);
+      const t = formatTime(account.Time);
+      document.getElementById("form-time").value = t !== "-" ? t : "";
+      document.getElementById("form-notes").value = account.Notes || "";
+      document.getElementById("account-modal").classList.remove("hidden");
+      document.getElementById("form-platform").focus();
+    }
+
+    function closeModal() {
+      document.getElementById("account-modal").classList.add("hidden");
+      document.getElementById("account-form").reset();
+    }
+
+    async function handleSaveAccount(e) {
+      e.preventDefault();
+      const accountId = document.getElementById("form-account-id").value;
+      const payload = {
+        AccountID: accountId,
+        Platform: document.getElementById("form-platform").value.trim(),
+        Username: document.getElementById("form-username").value.trim(),
+        Password: document.getElementById("form-password").value.trim(),
+        Date: document.getElementById("form-date").value,
+        Time: document.getElementById("form-time").value,
+        Notes: document.getElementById("form-notes").value.trim(),
+      };
+
+      if (!payload.Platform || !payload.Username || !payload.Password) {
+        toast("warning", "Form Tidak Lengkap", "Platform, username, dan password wajib diisi.");
+        return;
+      }
+
+      const action = accountId ? "updateAccount" : "addAccount";
+      const btn = document.getElementById("save-btn");
+      btn.disabled = true;
+      showLoading();
+
+      try {
+        const res = await api(action, payload, state.token);
+        hideLoading(); btn.disabled = false;
+        if (res.status !== "success") {
+          toast("error", "Gagal Menyimpan", res.message);
+          showAlert("error", "Gagal Menyimpan Akun", res.message);
+          return;
+        }
+
+        closeModal();
+        hideAlert();
+        await loadAccounts();
+        renderTable();
+        toast("success", accountId ? "Akun Diperbarui" : "Akun Ditambahkan",
+          payload.Platform + " — " + payload.Username);
+      } catch (ex) {
+        hideLoading(); btn.disabled = false;
+        toast("error", "Error", ex.message);
+        showAlert("error", "Terjadi Kesalahan", ex.message);
+      }
+    }
+
+    /* ---- Modal: Delete ---- */
+    let pendingDeleteId = null;
+
+    function openDeleteModal(accountId, label) {
+      pendingDeleteId = accountId;
+      document.getElementById("delete-confirm-msg").textContent =
+        `"${label}" akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`;
+      document.getElementById("delete-modal").classList.remove("hidden");
+      document.getElementById("confirm-delete-btn").onclick = confirmDelete;
+    }
+
+    function closeDeleteModal() {
+      document.getElementById("delete-modal").classList.add("hidden");
+      pendingDeleteId = null;
+    }
+
+    async function confirmDelete() {
+      if (!pendingDeleteId) return;
+      showLoading();
+      try {
+        const res = await api("deleteAccount", { AccountID: pendingDeleteId }, state.token);
+        hideLoading();
+        if (res.status !== "success") {
+          toast("error", "Gagal Menghapus", res.message);
+          showAlert("error", "Gagal Menghapus Akun", res.message);
+          return;
+        }
+        closeDeleteModal();
+        hideAlert();
+        await loadAccounts();
+        renderTable();
+        toast("success", "Akun Dihapus", "Data berhasil dihapus.");
+      } catch (ex) {
+        hideLoading();
+        toast("error", "Error", ex.message);
+        showAlert("error", "Terjadi Kesalahan", ex.message);
+      }
+    }
+
+    /* ---- Logout ---- */
+    async function handleLogout() {
+      showLoading();
+      try { await api("logoutAdmin", undefined, state.token); } catch (e) { /* abaikan */ }
+      clearSession();
+      window.location.href = LOGIN_PAGE;
+    }
+
+    /* ---- Ganti Password ---- */
+    function openChangePasswordModal() {
+      document.getElementById("cp-form").reset();
+      document.getElementById("cp-error").classList.add("hidden");
+      document.getElementById("cp-modal").classList.remove("hidden");
+      document.getElementById("cp-current").focus();
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById("cp-modal").classList.add("hidden");
+      document.getElementById("cp-form").reset();
+      document.getElementById("cp-error").classList.add("hidden");
+    }
+
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      const currentPassword = document.getElementById("cp-current").value;
+      const newPassword = document.getElementById("cp-new").value;
+      const confirmPassword = document.getElementById("cp-confirm").value;
+      const errEl = document.getElementById("cp-error");
+
+      errEl.classList.add("hidden");
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        errEl.textContent = "Semua field wajib diisi.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+      if (newPassword.length < 6) {
+        errEl.textContent = "Password baru minimal 6 karakter.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        errEl.textContent = "Konfirmasi password tidak cocok.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      const btn = document.getElementById("cp-save-btn");
+      btn.disabled = true;
+      showLoading();
+
+      try {
+        const res = await api("changePassword", { currentPassword, newPassword }, state.token);
+        hideLoading(); btn.disabled = false;
+        if (res.status !== "success") {
+          errEl.textContent = res.message || "Gagal mengubah password.";
+          errEl.classList.remove("hidden");
+          return;
+        }
+        closeChangePasswordModal();
+        toast("success", "Password Berhasil Diubah", "Gunakan password baru pada login berikutnya.");
+        showAlert("success", "Password Berhasil Diubah", "Gunakan password baru pada login berikutnya.");
+      } catch (ex) {
+        hideLoading(); btn.disabled = false;
+        errEl.textContent = ex.message;
+        errEl.classList.remove("hidden");
+      }
+    }
+
+    /* ---- Keyboard shortcuts ---- */
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        closeModal();
+        closeDeleteModal();
+        closeChangePasswordModal();
+        closeSidebar();
+      }
+    });
+
+    document.getElementById("account-modal").addEventListener("click", function (e) {
+      if (e.target === this) closeModal();
+    });
+    document.getElementById("delete-modal").addEventListener("click", function (e) {
+      if (e.target === this) closeDeleteModal();
+    });
+    document.getElementById("sidebar-overlay").addEventListener("click", closeSidebar);
+
+    /* ---- Boot ---- */
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("cp-modal").addEventListener("click", function (e) {
+        if (e.target === this) closeChangePasswordModal();
+      });
+      init();
+    });
+  </script>
+
+  <!-- ===== MODAL: Ganti Password ===== -->
+  <div id="cp-modal" class="modal-overlay hidden">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h3>Ganti Password</h3>
+        <button class="modal-close" onclick="closeChangePasswordModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <form id="cp-form" onsubmit="handleChangePassword(event)" novalidate>
+        <div class="modal-body">
+          <p style="font-size:13.5px;color:var(--text-muted);margin-bottom:20px;">
+            Masukkan password lama Anda untuk verifikasi, lalu buat password baru yang kuat.
+          </p>
+
+          <!-- Error inline -->
+          <div id="cp-error" class="hidden"
+            style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:#dc2626;margin-bottom:16px;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cp-current">Password Saat Ini <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="password" id="cp-current" class="form-control" placeholder="Masukkan password saat ini"
+                required />
+              <button type="button" class="input-toggle" onclick="togglePass('cp-current')" title="Tampilkan">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cp-new">Password Baru <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="password" id="cp-new" class="form-control" placeholder="Minimal 6 karakter" required />
+              <button type="button" class="input-toggle" onclick="togglePass('cp-new')" title="Tampilkan">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+            <span class="form-hint">Minimal 6 karakter, tidak boleh sama dengan password lama.</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="cp-confirm">Konfirmasi Password Baru <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="password" id="cp-confirm" class="form-control" placeholder="Ulangi password baru" required />
+              <button type="button" class="input-toggle" onclick="togglePass('cp-confirm')" title="Tampilkan">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeChangePasswordModal()">Batal</button>
+          <button type="submit" class="btn btn-primary" id="cp-save-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Simpan Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

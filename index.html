@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Akun Manager</title>
+  <meta name="description" content="Akun Manager — Aplikasi manajemen akun digital berbasis Google Apps Script." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="application-name" content="Akun Manager" />
+  <meta property="og:title" content="Akun Manager" />
+  <meta property="og:description" content="Aplikasi manajemen akun digital — Netflix, Spotify, CapCut, dan lainnya." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="id_ID" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Akun Manager" />
+  <meta name="twitter:description" content="Kelola akun digital Anda dengan mudah." />
+  <script src="config.js"></script>
+  <script>
+    // Redirect ke halaman yang sesuai berdasarkan status session
+    var token = localStorage.getItem(LS_TOKEN);
+    window.location.replace(token ? APP_PAGE : LOGIN_PAGE);
+  </script>
+</head>
+
+<body>
+  <p style="font-family:sans-serif;padding:40px;color:#64748b;">Mengalihkan...</p>
+</body>
+
+</html>

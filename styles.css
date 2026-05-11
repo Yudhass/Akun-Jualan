@@ -1,0 +1,1014 @@
+/* ============================================================
+   styles.css — Shared stylesheet untuk semua halaman FE
+============================================================ */
+
+/* ---------- CSS Variables ---------- */
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #eef2ff;
+  --danger: #ef4444;
+  --danger-dark: #dc2626;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #6366f1;
+
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --sidebar-bg: #1e1b4b;
+  --sidebar-text: #c4b5fd;
+  --sidebar-active: #6366f1;
+
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 4px 16px rgba(0, 0, 0, .06);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .06);
+  --transition: .18s ease;
+
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 15px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Loading Overlay ---------- */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, .7);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#loading-overlay.hidden {
+  display: none;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Toast ---------- */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 360px;
+  width: calc(100vw - 48px);
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  animation: slideUp .25s ease;
+}
+
+.toast.success {
+  border-left-color: var(--success);
+}
+
+.toast.error {
+  border-left-color: var(--danger);
+}
+
+.toast.warning {
+  border-left-color: var(--warning);
+}
+
+.toast.info {
+  border-left-color: var(--info);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.toast-msg {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 2px;
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+
+.toast-close:hover {
+  color: var(--text);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-dark);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+
+.btn-icon {
+  padding: 7px;
+}
+
+/* ---------- Form Elements ---------- */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.req {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+.form-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font);
+  background: var(--bg-card);
+  color: var(--text);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .15);
+}
+
+.form-control::placeholder {
+  color: #a0aec0;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Input with toggle button */
+.input-group {
+  position: relative;
+}
+
+.input-group .form-control {
+  padding-right: 44px;
+}
+
+.input-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+}
+
+.input-toggle:hover {
+  color: var(--text);
+}
+
+/* ---------- Card ---------- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Auth Layout ---------- */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+}
+
+.auth-page.hidden {
+  display: none;
+}
+
+.auth-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-logo svg {
+  color: var(--primary);
+}
+
+.auth-logo h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 12px;
+}
+
+.auth-logo p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 22px;
+}
+
+/* ---------- Badge Platform ---------- */
+.badge-platform {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.plt-netflix {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.plt-capcut {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.plt-spotify {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.plt-disney {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.plt-youtube {
+  background: #fee2e2;
+  color: #9b1c1c;
+}
+
+.plt-apple {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.plt-canva {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.plt-adobe {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.plt-amazon {
+  background: #fefce8;
+  color: #713f12;
+}
+
+.plt-default {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  backdrop-filter: blur(4px);
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn .2s ease;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(.97) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- Utility ---------- */
+.hidden {
+  display: none !important;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* ---------- Responsive helpers ---------- */
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 28px 20px;
+  }
+
+  .modal {
+    max-width: 100%;
+  }
+}
+
+/* ============================================================
+   App Layout — dipakai oleh dashboard.html & accounts.html
+============================================================ */
+body {
+  overflow-x: hidden;
+}
+
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* -------- Sidebar -------- */
+#sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 200;
+  transition: transform var(--transition);
+}
+
+.sidebar-brand {
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.sidebar-brand-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-brand h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.sidebar-brand span {
+  font-size: 11px;
+  color: var(--sidebar-text);
+  font-weight: 400;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(196, 181, 253, .5);
+  padding: 10px 8px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, .07);
+  color: #fff;
+  text-decoration: none;
+}
+
+.nav-item.active {
+  background: var(--sidebar-active);
+  color: #fff;
+}
+
+.nav-item .badge {
+  margin-left: auto;
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+  font-size: 10.5px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.nav-item.active .badge {
+  background: rgba(255, 255, 255, .25);
+}
+
+.sidebar-user {
+  padding: 16px 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.sidebar-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sidebar-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.sidebar-email {
+  font-size: 11.5px;
+  color: var(--sidebar-text);
+}
+
+/* Mobile sidebar overlay */
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 199;
+}
+
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  #sidebar-overlay.open {
+    display: block;
+  }
+}
+
+/* -------- Main Area -------- */
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+/* -------- Header -------- */
+#header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+#menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+#menu-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+@media (max-width: 768px) {
+  #menu-btn {
+    display: flex;
+    align-items: center;
+  }
+}
+
+#page-title {
+  font-size: 17px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* -------- Content Area -------- */
+#content {
+  flex: 1;
+  padding: 24px;
+}
+
+/* ============================================================
+   Alert Banner — dipakai di dashboard.html & accounts.html
+   Muncul di antara header dan konten utama
+============================================================ */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 24px;
+  border-bottom: 1px solid transparent;
+  animation: slideDown .22s ease;
+}
+
+.alert-banner.hidden {
+  display: none !important;
+}
+
+.alert-banner.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-left: 4px solid var(--success);
+}
+
+.alert-banner.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  border-left: 4px solid var(--danger);
+}
+
+.alert-banner.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  border-left: 4px solid var(--warning);
+}
+
+.alert-banner.info {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  border-left: 4px solid var(--info);
+}
+
+.alert-banner-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+}
+
+.alert-banner-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-banner-title {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.alert-banner-msg {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.alert-banner-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: all var(--transition);
+}
+
+.alert-banner-close:hover {
+  background: rgba(0, 0, 0, .06);
+  color: var(--text);
+}
+
+/* ============================================================
+   Alert Inline — dipakai di login.html & register.html
+   Tampil di dalam auth-card
+============================================================ */
+.alert-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  margin-bottom: 18px;
+  animation: slideDown .22s ease;
+}
+
+.alert-inline.hidden {
+  display: none !important;
+}
+
+.alert-inline.success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #15803d;
+}
+
+.alert-inline.error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+}
+
+.alert-inline.warning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+}
+
+.alert-inline.info {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #4338ca;
+}
+
+.alert-inline-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+}
+
+.alert-inline-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-inline-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  font-size: 13.5px;
+}
+
+.alert-inline-msg {
+  font-size: 13px;
+}
+
+.alert-inline-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+  opacity: .6;
+  transition: opacity var(--transition);
+}
+
+.alert-inline-close:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   Date Range Filter — toolbar di accounts.html
+============================================================ */
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.date-sep {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.date-input {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-family: var(--font);
+  background: var(--bg-card);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.date-input:focus {
+  border-color: var(--primary);
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: .6;
+}
